@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Pedidos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="bg-light border-end" id="sidebar-wrapper" style="width: 250px;">
+            <div class="sidebar-heading text-center py-4">SISTEMA ME</div>
+            <div class="list-group list-group-flush">
+                <a href="/" class="list-group-item list-group-item-action">Home</a>
+                <a href="/cadastro-produtos" class="list-group-item list-group-item-action">Cadastro de Produtos</a>
+                <a href="/cadastro-clientes" class="list-group-item list-group-item-action">Cadastro de Clientes</a>
+                <a href="/cadastro-pedidos" class="list-group-item list-group-item-action">Cadastro de Pedidos</a>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="container-fluid p-4">
+            <h1>Cadastro de Pedidos</h1>
+            <form action="/cadastro-pedidos" method="POST">
+                <div class="mb-3">
+                    <label for="numero" class="form-label">Número do Pedido</label>
+                    <input type="text" class="form-control" id="numero" name="numero" value="{{ pedido_num }}" readonly>
+                </div>
+                <div class="mb-3">
+                    <label for="cliente" class="form-label">Cliente</label>
+                    <select class="form-control" id="cliente" name="cliente_id" required>
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente['ID'] }}">{{ cliente['Nome'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="data_pedido" class="form-label">Data do Pedido</label>
+                    <input type="date" class="form-control" id="data_pedido" name="data_pedido" required>
+                </div>
+                <div class="mb-3">
+                    <label for="data_entrega" class="form-label">Data de Entrega</label>
+                    <input type="date" class="form-control" id="data_entrega" name="data_entrega" required>
+                </div>
+                <div class="mb-3">
+                    <label for="valor_pedido" class="form-label">Valor do Pedido</label>
+                    <input type="text" class="form-control" id="valor_pedido" name="valor_pedido" required>
+                </div>
+                <div class="mb-3">
+                    <label for="situacao" class="form-label">Situação</label>
+                    <select class="form-control" id="situacao" name="situacao" required>
+                        <option value="cotacao">Cotação</option>
+                        <option value="producao">Produção</option>
+                        <option value="pronto">Pronto</option>
+                        <option value="entregue">Entregue</option>
+                    </select>
+                </div>
+                <h3>Produtos</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sequência</th>
+                            <th>Produto</th>
+                            <th>Preço de Venda</th>
+                            <th>Custo de Produção</th>
+                            <th>Quantidade</th>
+                            <th>Total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="produtos-tbody">
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <select class="form-control produto-select" name="produto" required>
+                                    <option value="">Selecione um produto</option>
+                                    {% for produto in produtos %}
+                                        <option value="{{ produto['ID'] }}">{{ produto['Descricao'] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td><input type="text" class="form-control preco-venda" name="preco_venda" readonly></td>
+                            <td><input type="text" class="form-control custo-producao" name="custo_producao" readonly></td>
+                            <td><input type="number" class="form-control quantidade" name="quantidade" min="1" required></td>
+                            <td><input type="text" class="form-control total" name="total" readonly></td>
+                            <td><button type="button" class="btn btn-danger remove-produto">Remover</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-secondary" id="add-produto">Adicionar Produto</button>
+                <button type="submit" class="btn btn-primary">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('add-produto').addEventListener('click', function () {
+                const tbody = document.getElementById('produtos-tbody');
+                const rowCount = tbody.rows.length;
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${rowCount + 1}</td>
+                    <td>
+                        <select class="form-control produto-select" name="produto" required>
+                            <option value="">Selecione um produto</option>
+                            {% for produto in produtos %}
+                                <option value="{{ produto['ID'] }}">{{ produto['Descricao'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control preco-venda" name="preco_venda" readonly></td>
+                    <td><input type="text" class="form-control custo-producao" name="custo_producao" readonly></td>
+                    <td><input type="number" class="form-control quantidade" name="quantidade" min="1" required></td>
+                    <td><input type="text" class="form-control total" name="total" readonly></td>
+                    <td><button type="button" class="btn btn-danger remove-produto">Remover</button></td>
+                `;
+            });
+
+            document.getElementById('produtos-tbody').addEventListener('change', function (event) {
+                if (event.target.classList.contains('produto-select')) {
+                    const produtoId = event.target.value;
+                    const row = event.target.closest('tr');
+                    fetch(`/get_produto/${produtoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            row.querySelector('.preco-venda').value = data.PrecoVenda;
+                            row.querySelector('.custo-producao').value = data.CustoProducao;
+                            row.querySelector('.quantidade').value = 1;
+                            row.querySelector('.total').value = data.PrecoVenda;
+                        });
+                }
+            });
+
+            document.getElementById('produtos-tbody').addEventListener('input', function (event) {
+                if (event.target.classList.contains('quantidade')) {
+                    const row = event.target.closest('tr');
+                    const precoVenda = parseFloat(row.querySelector('.preco-venda').value);
+                    const quantidade = parseInt(event.target.value);
+                    const total = precoVenda * quantidade;
+                    row.querySelector('.total').value = total.toFixed(2);
+                }
+            });
+
+            document.getElementById('produtos-tbody').addEventListener('click', function (event) {
+                if (event.target.classList.contains('remove-produto')) {
+                    const row = event.target.closest('tr');
+                    row.remove();
+                }
+            });
+        });
+        document.getElementById('produtos-tbody').addEventListener('change', function (event) {
+    if (event.target.classList.contains('produto-select')) {
+        const produtoId = event.target.value;
+        const row = event.target.closest('tr');
+        fetch(`/get_produto/${produtoId}`)
+            .then(response => response.json())
+            .then(data => {
+                row.querySelector('.preco-venda').value = data.PrecoVenda;
+                row.querySelector('.custo-producao').value = data.CustoProducao;
+                row.querySelector('.quantidade').value = 1;  // Reseta para 1 quando novo produto é selecionado
+                row.querySelector('.total').value = data.PrecoVenda;  // Inicializa o total com o preço de venda
+                calcularTotalPedido();  // Atualiza o valor total do pedido
+            });
+    }
+
+    // Recalcular total do pedido sempre que o valor do produto ou quantidade mudar
+    if (event.target.classList.contains('quantidade') || event.target.classList.contains('produto-select')) {
+        calcularTotalPedido();  // Chama a função para recalcular o total do pedido
+    }
+});
+
+// Função para calcular o valor total do pedido
+function calcularTotalPedido() {
+    const rows = document.querySelectorAll('#produtos-tbody tr');
+    let valorPedido = 0;
+
+    rows.forEach(row => {
+        const precoVenda = parseFloat(row.querySelector('.preco-venda').value) || 0;
+        const quantidade = parseInt(row.querySelector('.quantidade').value) || 0;
+        const total = precoVenda * quantidade;
+        row.querySelector('.total').value = total.toFixed(2);
+        valorPedido += total;
+    });
+
+    document.getElementById('valor_pedido').value = valorPedido.toFixed(2);
+}
+
+    </script>
+</body>
+</html>
+
