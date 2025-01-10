@@ -235,5 +235,26 @@ def get_produto(produto_id):
     return jsonify({})
     return jsonify({})
 
+@app.route('/produtos', methods=['GET'])
+def buscar_produtos():
+    query = request.args.get('q', '').lower()
+    produtos = []
+
+    with open('produto.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if query in row['Descricao'].lower():
+                produtos.append({
+                    'ID': row['ID'],
+                    'Descricao': row['Descricao'],
+                    'PrecoVenda': row['PrecoVenda'],
+                    'CustoProducao': row['CustoProducao']
+                })
+
+    return jsonify(produtos)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 if __name__ == '__main__':
     app.run(debug=True)

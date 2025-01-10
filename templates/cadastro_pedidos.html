@@ -94,6 +94,19 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        <label for="buscar-produto" class="form-label">Buscar Produto</label>
+        <input type="text" id="buscar-produto" class="form-control" placeholder="Digite o nome do produto">
+        <div id="resultado-busca" class="list-group mt-2"></div>
+    </div>
+    <table class="table">
+  
+        <tbody id="produtos-tbody">
+            <!-- Linhas adicionadas dinamicamente -->
+        </tbody>
+    </table>
+    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -187,6 +200,84 @@ function calcularTotalPedido() {
 
     document.getElementById('valor_pedido').value = valorPedido.toFixed(2);
 }
+document.getElementById('buscar-produto').addEventListener('input', function (event) {
+    const query = event.target.value.trim();
+    const resultadoBusca = document.getElementById('resultado-busca');
+
+    if (query === '') {
+        resultadoBusca.innerHTML = '';
+        return;
+    }
+
+    fetch(`/produtos?q=${query}`)
+        .then(response => response.json())
+        .then(produtos => {
+            resultadoBusca.innerHTML = ''; // Limpa os resultados anteriores
+            produtos.forEach(produto => {
+                const item = document.createElement('button');
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = produto.Descricao;
+                item.dataset.id = produto.ID;
+                item.dataset.precoVenda = produto.PrecoVenda;
+                item.dataset.custoProducao = produto.CustoProducao;
+
+                // Adiciona um evento para selecionar o produto
+                item.addEventListener('click', function () {
+                    adicionarProduto(produto);
+                    resultadoBusca.innerHTML = ''; // Limpa os resultados após adicionar
+                });
+
+                resultadoBusca.appendChild(item);
+            });
+        });
+});
+
+// Função para adicionar um produto à tabela
+function adicionarProduto(produto) {
+    const tbody = document.getElementById('produtos-tbody');
+    const rowCount = tbody.rows.length;
+    const row = tbody.insertRow();
+
+    row.innerHTML = `
+        <td>${rowCount + 1}</td>
+        <td>${produto.Descricao}</td>
+        <td><input type="text" class="form-control preco-venda" value="${produto.PrecoVenda}" readonly></td>
+        <td><input type="text" class="form-control custo-producao" value="${produto.CustoProducao}" readonly></td>
+        <td><input type="number" class="form-control quantidade" value="1" min="1"></td>
+        <td><input type="text" class="form-control total" value="${produto.PrecoVenda}" readonly></td>
+        <td><button type="button" class="btn btn-danger remove-produto">Remover</button></td>
+    `;
+
+    // Atualiza o total do pedido
+    row.querySelector('.quantidade').addEventListener('input', function () {
+        const quantidade = parseInt(this.value);
+        const precoVenda = parseFloat(produto.PrecoVenda);
+        const total = quantidade * precoVenda;
+        row.querySelector('.total').value = total.toFixed(2);
+        calcularTotalPedido();
+    });
+
+    row.querySelector('.remove-produto').addEventListener('click', function () {
+        row.remove();
+        calcularTotalPedido();
+    });
+
+    calcularTotalPedido();
+}
+
+// Função para calcular o valor total do pedido
+function calcularTotalPedido() {
+    const rows = document.querySelectorAll('#produtos-tbody tr');
+    let valorPedido = 0;
+
+    rows.forEach(row => {
+        const total = parseFloat(row.querySelector('.total').value) || 0;
+        valorPedido += total;
+    });
+
+    document.getElementById('valor_pedido').value = valorPedido.toFixed(2);
+}
+
 
     </script>
 </body>
