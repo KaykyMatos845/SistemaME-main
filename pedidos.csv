@@ -1,3 +1,4 @@
 Numero,ClienteID,ClienteNome,DataPedido,DataEntrega,ValorPedido,Situacao
 
 3.2025,cliente5,Maeli (do Gordo),2025-01-01,2025-01-30,160,cotacao
+4.2025,cliente2,maike antonio ribeiro,2025-01-10,2025-01-30,400.00,producao

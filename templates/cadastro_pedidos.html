@@ -45,8 +45,9 @@
                 </div>
                 <div class="mb-3">
                     <label for="valor_pedido" class="form-label">Valor do Pedido</label>
-                    <input type="text" class="form-control" id="valor_pedido" name="valor_pedido" required>
+                    <input type="text" class="form-control" id="valor_pedido" name="valor_pedido" readonly>
                 </div>
+                
                 <div class="mb-3">
                     <label for="situacao" class="form-label">Situação</label>
                     <select class="form-control" id="situacao" name="situacao" required>
@@ -277,6 +278,16 @@ function calcularTotalPedido() {
 
     document.getElementById('valor_pedido').value = valorPedido.toFixed(2);
 }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Gerar número de pedido aleatório (você pode modificar essa lógica para uma sequência específica)
+        const numeroPedido = 'PED-' + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('numero').value = numeroPedido;
+
+       
+    });
+
+
 
 
     </script>
