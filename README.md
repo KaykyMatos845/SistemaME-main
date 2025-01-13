@@ -14,6 +14,7 @@ Certifique-se de ter instalado:
 
 1. Clone este repositório para sua máquina local
 2. Instale as dependências necessárias:
+   ```bash
    pip install flask flask-bootstrap
 
 
