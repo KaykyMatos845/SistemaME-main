@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, jsonify
 from flask_bootstrap import Bootstrap
 import csv
 import os
+import random
 from datetime import datetime
 
 app = Flask(__name__)
@@ -52,17 +53,15 @@ def cadastro_clientes():
 @app.route('/cadastro-produtos', methods=['GET', 'POST'])
 def cadastro_produtos():
     if request.method == 'POST':
-        # Gerar um ID único no formato produto1, produto2, etc.
         if os.path.isfile('produto.csv'):
             with open('produto.csv', 'r') as file:
                 reader = csv.reader(file)
                 lines = list(reader)
-                next_id = len(lines)  # Contar o número de linhas no arquivo CSV
+                next_id = len(lines)
         else:
             next_id = 0
         produto_id = f'produto{next_id + 1}'
-        
-        # Lógica para lidar com dados do formulário enviados via POST
+
         produto = {
             'ID': produto_id,
             'Tipo': request.form.get('tipo'),
@@ -70,23 +69,19 @@ def cadastro_produtos():
             'PrecoVenda': request.form.get('preco_venda'),
             'CustoProducao': request.form.get('custo_producao')
         }
-        
-        # Salvar os dados no arquivo CSV
+
         try:
             file_exists = os.path.isfile('produto.csv')
             with open('produto.csv', mode='a', newline='') as file:
                 writer = csv.DictWriter(file, fieldnames=produto.keys())
                 if not file_exists:
-                    writer.writeheader()  # Escrever o cabeçalho se o arquivo não existir
+                    writer.writeheader()
                 writer.writerow(produto)
-            print("Dados salvos no arquivo CSV com sucesso.")
         except Exception as e:
             print("Erro ao salvar os dados no arquivo CSV:", e)
-        
-        # Redirecionar para a página inicial após salvar os dados
+
         return redirect(url_for('home'))
-    
-    # Ler o arquivo tipo_produto.csv para preencher a lista suspensa
+
     tipos_produto = []
     if os.path.isfile('tipo_produto.csv'):
         with open('tipo_produto.csv', 'r', newline='', encoding='utf-8') as file:
@@ -96,21 +91,26 @@ def cadastro_produtos():
                     'ID': row['Id'],
                     'Descricao': row['descrição']
                 })
-    
-    return render_template('cadastro_produtos.html', tipos_produto=tipos_produto)
 
+    return render_template('cadastro_produtos.html', tipos_produto=tipos_produto)
 
 @app.route('/cadastro-pedidos', methods=['GET', 'POST'])
 def cadastro_pedidos():
     if request.method == 'POST':
+        pedido_num = None
+        existing_numbers = set()
+
         if os.path.isfile('pedidos.csv'):
             with open('pedidos.csv', 'r') as file:
-                reader = csv.reader(file)
-                lines = list(reader)
-                next_num = len(lines)
-        else:
-            next_num = 0
-        pedido_num = f'{next_num + 1}.{datetime.now().year}'
+                reader = csv.DictReader(file)
+                for row in reader:
+                    existing_numbers.add(row['Numero'])
+
+        while True:
+            random_number = random.randint(1000, 9999)
+            pedido_num = f"PED-{random_number}"
+            if pedido_num not in existing_numbers:
+                break
 
         cliente_id = request.form.get('cliente_id')
         cliente_nome = None
