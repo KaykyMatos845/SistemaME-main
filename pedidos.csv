@@ -1,2 +1,3 @@
 Numero,ClienteID,ClienteNome,DataPedido,DataEntrega,ValorPedido,Situacao
 PED-3079,cliente2,maike antonio ribeiro,2025-01-01,2025-12-01,160.00,cotacao
+PED-7071,cliente2,maike antonio ribeiro,2323-03-31,2005-02-21,160.00,cotacao
