@@ -1,3 +1,16 @@
 Numero,ClienteID,ClienteNome,DataPedido,DataEntrega,ValorPedido,Situacao
 PED-3079,cliente2,maike antonio ribeiro,2025-01-01,2025-12-01,160.00,cotacao
 PED-7071,cliente2,maike antonio ribeiro,2323-03-31,2005-02-21,160.00,cotacao
+PED-3510,cliente2,maike antonio ribeiro,1313-02-12,2321-12-31,120.00,cotacao
+PED-5861,cliente2,maike antonio ribeiro,1212-02-21,1232-12-31,189.90,cotacao
+PED-7894,cliente2,maike antonio ribeiro,1212-12-31,2323-03-31,240.00,pronto
+PED-4336,cliente2,maike antonio ribeiro,1212-12-31,2323-03-31,240.00,pronto
+PED-4133,cliente2,maike antonio ribeiro,2312-12-23,2321-12-31,240.00,cotacao
+PED-8414,cliente4,Maeli (do Gordo),2025-01-21,2025-02-21,240.00,cotacao
+PED-1749,cliente2,maike antonio ribeiro,2025-02-21,2025-03-21,160.00,cotacao
+PED-7596,cliente2,maike antonio ribeiro,2025-01-21,2025-01-22,160.00,cotacao
+PED-7021,cliente3,Eleni Ribeiro,2025-01-21,2025-01-22,240.00,cotacao
+PED-3023,cliente2,maike antonio ribeiro,2025-12-30,2025-02-14,186.90,cotacao
+PED-1124,cliente2,maike antonio ribeiro,2025-01-23,2025-01-24,160.00,cotacao
+PED-1788,cliente2,maike antonio ribeiro,2025-01-22,2025-01-23,160.00,cotacao
+PED-3201,cliente2,maike antonio ribeiro,2025-01-22,2025-01-23,189.90,cotacao
