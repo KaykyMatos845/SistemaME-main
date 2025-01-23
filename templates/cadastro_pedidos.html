@@ -93,12 +93,12 @@
             document.getElementById('buscar-produto').addEventListener('input', function (event) {
                 const query = event.target.value.trim();
                 const resultadoBusca = document.getElementById('resultado-busca');
-    
+
                 if (query === '') {
                     resultadoBusca.innerHTML = '';
                     return;
                 }
-    
+
                 fetch(`/produtos?q=${query}`)
                     .then(response => response.json())
                     .then(produtos => {
@@ -110,18 +110,18 @@
                             item.dataset.id = produto.ID;
                             item.dataset.precoVenda = produto.PrecoVenda;
                             item.dataset.custoProducao = produto.CustoProducao;
-    
+
                             // Adiciona um evento para selecionar o produto
                             item.addEventListener('click', function () {
                                 adicionarProduto(produto);
                                 resultadoBusca.innerHTML = ''; // Limpa os resultados após adicionar
                             });
-    
+
                             resultadoBusca.appendChild(item);
                         });
                     });
             });
-    
+
             // Corrigir envio do formulário
             document.getElementById('pedido-form').addEventListener('submit', function (event) {
                 event.preventDefault(); // Prevenir envio padrão
@@ -129,57 +129,59 @@
                 this.submit(); // Submeter o formulário manualmente
             });
         });
-    
+
         // Função para adicionar um produto à tabela
         function adicionarProduto(produto) {
             const tbody = document.getElementById('produtos-tbody');
             const rowCount = tbody.rows.length;
             const row = tbody.insertRow();
-    
+
             row.innerHTML = `
                 <td>${rowCount + 1}</td>
                 <td>${produto.Descricao}</td>
-                <td><input type="text" class="form-control" value="${produto.PrecoVenda}" readonly></td>
+                <td><input type="text" class="form-control preco-venda" value="${produto.PrecoVenda}" readonly></td>
                 <td><input type="number" class="form-control quantidade" value="1" min="1"></td>
                 <td><input type="text" class="form-control total" value="${produto.PrecoVenda}" readonly></td>
                 <td><input type="text" class="form-control" value="${produto.CustoProducao}" readonly></td>
                 <td><button type="button" class="btn btn-danger remove-produto">Remover</button></td>
                 <input type="hidden" name="produto_id[]" value="${produto.ID}">
-                <input type="hidden" name="produto_descricao[]" value="${produto.Descricao}">
+                <input type="hidden" name="produto_descricao[]" value="${produto.Descricao}"> 
                 <input type="hidden" name="preco_venda[]" value="${produto.PrecoVenda}">
                 <input type="hidden" name="custo_producao[]" value="${produto.CustoProducao}">
                 <input type="hidden" class="quantidade_hidden" name="quantidade[]" value="1">
                 <input type="hidden" class="total_hidden" name="total[]" value="${produto.PrecoVenda}">
             `;
-    
+
             // Atualiza o total ao alterar a quantidade
             row.querySelector('.quantidade').addEventListener('input', function () {
                 const quantidade = parseInt(this.value) || 1;
-                const precoVenda = parseFloat(produto.PrecoVenda);
+                const precoVenda = parseFloat(row.querySelector('.preco-venda').value);
                 const total = quantidade * precoVenda;
+                row.querySelector('.total').value = total.toFixed(2);
                 row.querySelector('.quantidade_hidden').value = quantidade;
                 row.querySelector('.total_hidden').value = total.toFixed(2);
                 calcularTotalPedido();
             });
-    
+
+            // Remove a linha do produto
             row.querySelector('.remove-produto').addEventListener('click', function () {
                 row.remove();
                 calcularTotalPedido();
             });
-    
+
             calcularTotalPedido(); // Atualiza o valor total do pedido
         }
-    
+
         // Função para calcular o valor total do pedido
         function calcularTotalPedido() {
             const rows = document.querySelectorAll('#produtos-tbody tr');
             let valorPedido = 0;
-    
+
             rows.forEach(row => {
                 const total = parseFloat(row.querySelector('.total').value) || 0;
                 valorPedido += total;
             });
-    
+
             document.getElementById('valor_pedido').value = valorPedido.toFixed(2);
         }
 
@@ -191,7 +193,7 @@
                 console.log(`Produto ${index + 1}:`, produto);
             });
         }
-    
+
         // Gerar número de pedido aleatório
         document.addEventListener('DOMContentLoaded', function () {
             const numeroPedido = 'PED-' + Math.floor(1000 + Math.random() * 9000);
